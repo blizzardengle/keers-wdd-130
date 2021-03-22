@@ -20,7 +20,7 @@ jobs:
       # Using the commit that triggered this workflow copy all files to a safe space.
       - name: Compiling website
         run: |
-          mv * ../website
+          cp -rf . ../website
 
       # Create a shell script that creates the website branch if it does not exist
       - name: Checking if website branch exists
