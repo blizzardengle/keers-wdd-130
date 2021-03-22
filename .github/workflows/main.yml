@@ -37,7 +37,7 @@ jobs:
           ./wbc.sh
           rm wbc.sh
       
-      # Checkout the website (gh pages) branch
+      # Checkout the website (gh-pages) branch
       - name: Checkout website branch
         uses: actions/checkout@v2
         with:
