@@ -6,22 +6,21 @@ on:
   push:
     branches: [ main ]
 
-  # Allows you to run this workflow manually from the Actions tab on GitHub
+  # Allows you to run this workflow manually from the Actions tab on GitHub.
   workflow_dispatch:
 
 # Controls what to do:
 jobs:
-  compile: # Used as the job name if the workflow wasn't named
-    # Stop if the commit message that triggered this workflow contains the words "skip ci"
+  compile: # Used as the job name if the workflow wasn't named.
+    # Stop if the commit message that triggered this workflow contains the words "skip ci".
     if: "!contains(github.event.commits[0].message, 'skip ci')"
     runs-on: ubuntu-latest
     
     steps:
-      # Checkout the main branch
-      - name: Checkout website branch
-        uses: actions/checkout@v2
-        with:
-          ref: main
+      # Using the commit that triggered this workflow copy all files to a safe space.
+      - name: Compiling website
+        run: |
+          mv * ../website
 
       # Create a shell script that creates the website branch if it does not exist
       - name: Checking if website branch exists
@@ -49,8 +48,16 @@ jobs:
         with:
           ref: website
 
-      # Delete all files in the website branch and replace with the files we just compiled
+      # Delete all files in the website branch and replace with the files we just compiled:
+      # This is the only 100% foolproof way to perform a merge using a workflow. We have to
+      # manually copy the files into the website branch.
       - name: Merging & pushing to website (gh-pages) branch
         run: |
-          git merge origin/main
+          rm * -r
+          git rm -r --cached .
+          echo "Copy release files into website branch"
+          cp ../website/* . -r
+          rm ../website -r
+          git add .
+          git commit -m "workflow auto compile website"
           git push
