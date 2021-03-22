@@ -44,9 +44,7 @@ jobs:
         with:
           ref: website
 
-      # Delete all files in the website branch and replace with the files we just compiled:
-      # This is the only 100% foolproof way to perform a merge using a workflow. We have to
-      # manually copy the files into the website branch.
+      # Attempt to merge the main branch into the website branch
       - name: Merging & pushing to website (gh-pages) branch
         run: |
           git merge origin/main --allow-unrelated-histories
