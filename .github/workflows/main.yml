@@ -1,0 +1,50 @@
+# Workflow Name
+name: Compile Updated Website
+
+# Control when the action will run:
+on:
+  push:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab on GitHub
+  workflow_dispatch:
+
+# Controls what to do:
+jobs:
+  compile: # Used as the job name if the workflow wasn't named
+    # Stop if the commit message that triggered this workflow contains the words "skip ci"
+    if: "!contains(github.event.commits[0].message, 'skip ci')"
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Create a shell script that creates the website branch if it does not exist
+      - name: Checking if website branch exists
+        run: |
+          git config --global user.name "$(git --no-pager log --format=format:'%an' -n 1)"
+          git config --global user.email "$(git --no-pager log --format=format:'%ae' -n 1)"
+          touch wbc.sh
+          echo "#!/bin/bash" >> wbc.sh
+          echo "check=\"$(git ls-remote --heads | grep website)"\" >> wbc.sh
+          echo "if [ -z \"\$check\" ]" >> wbc.sh
+          echo "then" >> wbc.sh
+          echo "  echo \"Website branch does not exist, creating now\"" >> wbc.sh
+          echo "  git checkout -b website" >> wbc.sh
+          echo "  git push --set-upstream origin website" >> wbc.sh
+          echo "else" >> wbc.sh
+          echo "  echo \"Website branch exists\"" >> wbc.sh
+          echo "fi" >> wbc.sh
+          chmod +x wbc.sh
+          ./wbc.sh
+          rm wbc.sh
+      
+      # Checkout the website (gh pages) branch
+      - name: Checkout website branch
+        uses: actions/checkout@v2
+        with:
+          ref: website
+
+      # Delete all files in the website branch and replace with the files we just compiled
+      - name: Merging & pushing to website (gh-pages) branch
+        run: |
+          git merge main
+          git push
