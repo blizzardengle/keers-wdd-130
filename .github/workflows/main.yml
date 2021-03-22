@@ -15,6 +15,12 @@ jobs:
     # Stop if the commit message that triggered this workflow contains the words "skip ci"
     if: "!contains(github.event.commits[0].message, 'skip ci')"
     runs-on: ubuntu-latest
+
+    # Checkout the main branch
+      - name: Checkout website branch
+        uses: actions/checkout@v2
+        with:
+          ref: main
     
     steps:
       # Create a shell script that creates the website branch if it does not exist
@@ -37,7 +43,7 @@ jobs:
           ./wbc.sh
           rm wbc.sh
       
-      # Checkout the website (gh-pages) branch
+      # Switch to the website (gh-pages) branch
       - name: Checkout website branch
         uses: actions/checkout@v2
         with:
