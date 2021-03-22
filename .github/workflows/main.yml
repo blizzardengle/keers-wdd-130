@@ -18,7 +18,9 @@ jobs:
     
     steps:
       # Using the commit that triggered this workflow copy all files to a safe space.
+      - uses: actions/checkout@v2
       - name: Compiling website
         run: |
-          ls -al
           cp -rf . ../website
+      
+     
