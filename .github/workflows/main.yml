@@ -20,44 +20,5 @@ jobs:
       # Using the commit that triggered this workflow copy all files to a safe space.
       - name: Compiling website
         run: |
+          ls -al
           cp -rf . ../website
-
-      # Create a shell script that creates the website branch if it does not exist
-      - name: Checking if website branch exists
-        run: |
-          git config --global user.name "$(git --no-pager log --format=format:'%an' -n 1)"
-          git config --global user.email "$(git --no-pager log --format=format:'%ae' -n 1)"
-          touch wbc.sh
-          echo "#!/bin/bash" >> wbc.sh
-          echo "check=\"$(git ls-remote --heads | grep website)"\" >> wbc.sh
-          echo "if [ -z \"\$check\" ]" >> wbc.sh
-          echo "then" >> wbc.sh
-          echo "  echo \"Website branch does not exist, creating now\"" >> wbc.sh
-          echo "  git checkout -b website" >> wbc.sh
-          echo "  git push --set-upstream origin website" >> wbc.sh
-          echo "else" >> wbc.sh
-          echo "  echo \"Website branch exists\"" >> wbc.sh
-          echo "fi" >> wbc.sh
-          chmod +x wbc.sh
-          ./wbc.sh
-          rm wbc.sh
-      
-      # Switch to the website (gh-pages) branch
-      - name: Checkout website branch
-        uses: actions/checkout@v2
-        with:
-          ref: website
-
-      # Delete all files in the website branch and replace with the files we just compiled:
-      # This is the only 100% foolproof way to perform a merge using a workflow. We have to
-      # manually copy the files into the website branch.
-      - name: Merging & pushing to website (gh-pages) branch
-        run: |
-          rm * -r
-          git rm -r --cached .
-          echo "Copy release files into website branch"
-          cp ../website/* . -r
-          rm ../website -r
-          git add .
-          git commit -m "workflow auto compile website"
-          git push
