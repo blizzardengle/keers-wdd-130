@@ -52,5 +52,5 @@ jobs:
       # Delete all files in the website branch and replace with the files we just compiled
       - name: Merging & pushing to website (gh-pages) branch
         run: |
-          git merge main
+          git merge origin/main
           git push
