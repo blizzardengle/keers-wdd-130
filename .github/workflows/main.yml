@@ -49,5 +49,5 @@ jobs:
       # manually copy the files into the website branch.
       - name: Merging & pushing to website (gh-pages) branch
         run: |
-          git merge origin/main
+          git merge origin/main --allow-unrelated-histories
           git push
